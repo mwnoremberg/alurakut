@@ -104,6 +104,26 @@ export default function Home() {
       link: "https://github.com/sergiolopes",
     },
   ]
+
+  const [seguidores, setSeguidores] = React.useState([]);
+
+  React.useEffect(()=>{
+    fetch("https://api.github.com/users/peas/followers")
+    .then((response)=>{
+      return response.json();
+    })
+    .then((json)=>{
+      setSeguidores(json.map((seguidor)=>{
+        return {
+          id: seguidor.id,
+          name: seguidor.login,
+          image: seguidor.avatar_url,
+          link: seguidor.html_url
+        }
+      }))
+    })
+  }, [])
+
   return (
     <>
     <AlurakutMenu githubUser={user}/>
@@ -137,6 +157,7 @@ export default function Home() {
         </Box>
       </div>
       <div className="profileRelationsArea" style={{ gridArea: 'profileRelationsArea' }}>
+          <CommunityBox boxName="Seguidores" items={seguidores}></CommunityBox>
           <CommunityBox boxName="Comunidades" items={comunidades}></CommunityBox>
           <CommunityBox boxName="Pessoas da comunidade" items={friends}></CommunityBox>
         </div>
