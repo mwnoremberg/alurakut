@@ -41,24 +41,24 @@ function CommunityBox(props){
 
 export default function Home() {
   const [comunidades, setComunidades] = React.useState([
-    {
-      id: Math.random(),
-      name: "TopWay School",
-      image: "https://www.topwayschool.com/tw/icons/a-brand-oficial.svg",
-      link: "https://topwayschool.com/",
-    },
-    {
-      id: Math.random(),
-      name: "UFPel",
-      image: "https://upload.wikimedia.org/wikipedia/commons/4/49/UFPEL-ESCUDO-2013.png",
-      link: "https://portal.ufpel.edu.br/",
-    },
-    {
-      id: Math.random(),
-      name: "Laravel",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Laravel.svg/250px-Laravel.svg.png",
-      link: "https://laravel.com/",
-    }
+    // {
+    //   id: Math.random(),
+    //   name: "TopWay School",
+    //   image: "https://www.topwayschool.com/tw/icons/a-brand-oficial.svg",
+    //   link: "https://topwayschool.com/",
+    // },
+    // {
+    //   id: Math.random(),
+    //   name: "UFPel",
+    //   image: "https://upload.wikimedia.org/wikipedia/commons/4/49/UFPEL-ESCUDO-2013.png",
+    //   link: "https://portal.ufpel.edu.br/",
+    // },
+    // {
+    //   id: Math.random(),
+    //   name: "Laravel",
+    //   image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Laravel.svg/250px-Laravel.svg.png",
+    //   link: "https://laravel.com/",
+    // }
   ]);
   const user = 'mwnoremberg';
   const friends = [{
@@ -122,6 +122,21 @@ export default function Home() {
         }
       }))
     })
+    
+    fetch("/api/comunidades")
+    .then((response)=>{
+      return response.json();
+    })
+    .then((json)=>{
+      setComunidades(json.map((community)=>{
+        return {
+          id: community.id,
+          name: community.name,
+          image: community.imageUrl,
+          link: community.link
+        }
+      }))
+    })
   }, [])
 
   return (
@@ -143,9 +158,21 @@ export default function Home() {
           <form onSubmit={function handleCreateCommunity (e){
             e.preventDefault();
             const dadosForm = new FormData(e.target);
-            const novaComunidade = {name:dadosForm.get("name"), image: dadosForm.get("image"), link: dadosForm.get("link")}
-            const comunidadesNovo = [...comunidades, novaComunidade]
-            setComunidades(comunidadesNovo);
+            const novaComunidade = {name:dadosForm.get("name"), imageUrl: dadosForm.get("image"), link: dadosForm.get("link")}
+            fetch("/api/comunidades",{
+              method:"POST",
+              headers:{
+                'Content-Type': "application/json",
+              },
+              body: JSON.stringify(novaComunidade)
+            }).then(async (response)=>{
+              const dados = await response.json();
+              // console.log(dados);
+              const comunidadesNovo = [...comunidades, {image: dados.record.imageUrl,...dados.record}]
+              setComunidades(comunidadesNovo);
+            })
+            // const comunidadesNovo = [...comunidades, novaComunidade]
+            // setComunidades(comunidadesNovo);
           }}>
             <div>
               <input type="text" placeholder="Qual o nome da sua comunidade?" name="name" aria-label="Qual o nome da sua comunidade?" required/>
